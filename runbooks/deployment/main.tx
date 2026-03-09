@@ -1,0 +1,15 @@
+################################################################
+# Manage terravest deployment through Crypto Infrastructure as Code
+################################################################
+
+addon "svm" {
+    rpc_api_url = input.rpc_api_url
+    network_id = input.network_id
+}
+
+action "deploy_terravest" "svm::deploy_program" {
+    description = "Deploy terravest program"
+    program = svm::get_program_from_anchor_project("terravest") 
+    authority = signer.authority
+    payer = signer.payer
+}
