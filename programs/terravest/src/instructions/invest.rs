@@ -14,7 +14,7 @@ pub struct Invest<'info> {
     pub investor: Signer<'info>,
 
     #[account(
-        seeds = [b"platform-config"],
+        seeds = [b"platform_config"],
         bump = platform_config.bump
     )]
     pub platform_config: Account<'info, PlatformConfig>,
@@ -36,7 +36,7 @@ pub struct Invest<'info> {
     #[account(
         init,
         payer = investor,
-        space = InvestorPosition::INIT_SPACE,
+        space = 8 + InvestorPosition::INIT_SPACE,
         seeds = [b"position", investor.key().as_ref(), property.key().as_ref()],
         bump
     )]
@@ -45,7 +45,7 @@ pub struct Invest<'info> {
     pub system_program: Program<'info, System>,
 }
 
-pub fn handler(ctx: Context<Invest>, units_to_buy: u64) -> Result<()> {
+pub fn invest_handler(ctx: Context<Invest>, units_to_buy: u64) -> Result<()> {
     require!(units_to_buy > 0, TerraVestError::InvalidUnitsToBuy);
 
     let property = &mut ctx.accounts.property;

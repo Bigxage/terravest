@@ -12,7 +12,7 @@ pub struct CreateProperty<'info> {
     pub admin: Signer<'info>,
 
     #[account(
-        seeds = [b"platform-config"],
+        seeds = [b"platform_config"],
         bump = platform_config.bump,
         constraint = platform_config.admin == admin.key() @ TerraVestError::Unauthorized
     )]
@@ -21,7 +21,7 @@ pub struct CreateProperty<'info> {
     #[account(
         init,
         payer = admin,
-        space = Property::INIT_SPACE,
+        space = 8 + Property::INIT_SPACE,
         seeds = [b"property", &property_id.to_le_bytes()],
         bump
     )]
@@ -30,7 +30,7 @@ pub struct CreateProperty<'info> {
     pub system_program: Program<'info, System>,
 }
 
-pub fn handler(
+pub fn create_property_handler(
     ctx: Context<CreateProperty>,
     property_id: u64,
     name: String,
@@ -40,7 +40,7 @@ pub fn handler(
 ) -> Result<()> {
     require!(name.len() <= MAX_NAME_LENGTH, TerraVestError::NameTooLong);
     require!(
-        location.len() <= MAX_LOCATION_LENGTH, 
+        location.len() <= MAX_LOCATION_LENGTH,
         TerraVestError::LocationTooLong
     );
     require!(price_per_unit_lamports > 0, TerraVestError::InvalidPrice);

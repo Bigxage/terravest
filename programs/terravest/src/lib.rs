@@ -8,35 +8,35 @@ pub mod state;
 pub use instructions::*;
 pub use state::*;
 
-declare_id!("DtGKEvZwqBSsYnkg8em1DbVNrnkpVYGJmq55exQsxKvA");
+declare_id!("GtnVbAsPubGcD1mEG6jUfn6AC47TMrSJmLeeJ9SvFkBz");
 
 #[program]
 pub mod terravest {
     use super::*;
 
     pub fn initialize_platform(ctx: Context<InitializePlatform>) -> Result<()> {
-        instructions::initialize_platform::handler(ctx)
+        initialize_platform_handler(ctx)
     }
 
     pub fn create_property(
         ctx: Context<CreateProperty>,
         property_id: u64,
-        name: String, 
+        name: String,
         location: String,
         price_per_unit_lamports: u64,
         total_units: u64,
     ) -> Result<()> {
-        instructions::create_property::handler(
-            ctx, 
+        create_property_handler(
+            ctx,
             property_id,
-            name, 
-            location, 
+            name,
+            location,
             price_per_unit_lamports,
             total_units,
         )
     }
 
     pub fn invest(ctx: Context<Invest>, units_to_invest: u64) -> Result<()> {
-        instructions::invest::handler(ctx, units_to_invest)
+        invest_handler(ctx, units_to_invest)
     }
 }

@@ -1,6 +1,11 @@
 import * as anchor from "@coral-xyz/anchor";
 import { Program } from "@coral-xyz/anchor";
-import { PublicKey, Keypair, SystemProgram, LAMPORTS_PER_SOL } from "@solana/web3.js";
+import {
+  PublicKey,
+  Keypair,
+  LAMPORTS_PER_SOL,
+  Commitment,
+} from "@solana/web3.js";
 import { assert } from "chai";
 import { Terravest } from "../target/types/terravest";
 
@@ -15,9 +20,10 @@ describe("terravest", () => {
   const investor = Keypair.generate();
 
   const propertyId = new anchor.BN(1);
+  const commitment: Commitment = "confirmed";
 
   const [platformConfigPda] = PublicKey.findProgramAddressSync(
-    [Buffer.from("platform-config")],
+    [Buffer.from("platform_config")],
     program.programId
   );
 
@@ -27,7 +33,11 @@ describe("terravest", () => {
   );
 
   const [investorPositionPda] = PublicKey.findProgramAddressSync(
-    [Buffer.from("position"), investor.publicKey.toBuffer(), propertyPda.toBuffer()],
+    [
+      Buffer.from("position"),
+      investor.publicKey.toBuffer(),
+      propertyPda.toBuffer(),
+    ],
     program.programId
   );
 
@@ -36,23 +46,34 @@ describe("terravest", () => {
       treasury.publicKey,
       2 * LAMPORTS_PER_SOL
     );
-    await provider.connection.confirmTransaction(sig1);
+    await provider.connection.confirmTransaction(sig1, commitment);
 
     const sig2 = await provider.connection.requestAirdrop(
       investor.publicKey,
       2 * LAMPORTS_PER_SOL
     );
-    await provider.connection.confirmTransaction(sig2);
+    await provider.connection.confirmTransaction(sig2, commitment);
+
+    const treasuryBalance = await provider.connection.getBalance(
+      treasury.publicKey,
+      commitment
+    );
+    const investorBalance = await provider.connection.getBalance(
+      investor.publicKey,
+      commitment
+    );
+
+    assert.isAbove(treasuryBalance, 0, "Treasury was not funded");
+    assert.isAbove(investorBalance, 0, "Investor was not funded");
   });
 
   it("Initializes platform", async () => {
     await program.methods
       .initializePlatform()
-      .accounts({
+      .accountsPartial({
         admin: admin.publicKey,
         treasury: treasury.publicKey,
         platformConfig: platformConfigPda,
-        systemProgram: SystemProgram.programId,
       })
       .rpc();
 
@@ -71,11 +92,10 @@ describe("terravest", () => {
         new anchor.BN(0.5 * LAMPORTS_PER_SOL),
         new anchor.BN(200)
       )
-      .accounts({
+      .accountsPartial({
         admin: admin.publicKey,
         platformConfig: platformConfigPda,
         property: propertyPda,
-        systemProgram: SystemProgram.programId,
       })
       .rpc();
 
@@ -88,21 +108,31 @@ describe("terravest", () => {
   });
 
   it("Invests in property", async () => {
+    const investorBalanceBefore = await provider.connection.getBalance(
+      investor.publicKey,
+      commitment
+    );
+    assert.isAbove(
+      investorBalanceBefore,
+      0,
+      "Investor has no lamports before investing"
+    );
+
     await program.methods
       .invest(new anchor.BN(2))
-      .accounts({
+      .accountsPartial({
         investor: investor.publicKey,
         platformConfig: platformConfigPda,
         property: propertyPda,
         treasury: treasury.publicKey,
         investorPosition: investorPositionPda,
-        systemProgram: SystemProgram.programId,
       })
       .signers([investor])
       .rpc();
 
     const property = await program.account.property.fetch(propertyPda);
-    const position = await program.account.investorPosition.fetch(investorPositionPda);
+    const position =
+      await program.account.investorPosition.fetch(investorPositionPda);
 
     assert.equal(property.unitsSold.toString(), "2");
     assert.equal(position.unitsOwned.toString(), "2");
