@@ -1,0 +1,463 @@
+{
+  "address": "GtnVbAsPubGcD1mEG6jUfn6AC47TMrSJmLeeJ9SvFkBz",
+  "metadata": {
+    "name": "terravest",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Created with Anchor"
+  },
+  "instructions": [
+    {
+      "name": "create_property",
+      "discriminator": [
+        45,
+        115,
+        89,
+        113,
+        193,
+        252,
+        125,
+        27
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "platform_config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  108,
+                  97,
+                  116,
+                  102,
+                  111,
+                  114,
+                  109,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "property",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  111,
+                  112,
+                  101,
+                  114,
+                  116,
+                  121
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "property_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "property_id",
+          "type": "u64"
+        },
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "location",
+          "type": "string"
+        },
+        {
+          "name": "price_per_unit_lamports",
+          "type": "u64"
+        },
+        {
+          "name": "total_units",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "initialize_platform",
+      "discriminator": [
+        119,
+        201,
+        101,
+        45,
+        75,
+        122,
+        89,
+        3
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "treasury"
+        },
+        {
+          "name": "platform_config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  108,
+                  97,
+                  116,
+                  102,
+                  111,
+                  114,
+                  109,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "invest",
+      "discriminator": [
+        13,
+        245,
+        180,
+        103,
+        254,
+        182,
+        121,
+        4
+      ],
+      "accounts": [
+        {
+          "name": "investor",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "platform_config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  108,
+                  97,
+                  116,
+                  102,
+                  111,
+                  114,
+                  109,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "property",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  111,
+                  112,
+                  101,
+                  114,
+                  116,
+                  121
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "property.property_id",
+                "account": "Property"
+              }
+            ]
+          }
+        },
+        {
+          "name": "treasury",
+          "writable": true
+        },
+        {
+          "name": "investor_position",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  111,
+                  115,
+                  105,
+                  116,
+                  105,
+                  111,
+                  110
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "investor"
+              },
+              {
+                "kind": "account",
+                "path": "property"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "units_to_invest",
+          "type": "u64"
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "InvestorPosition",
+      "discriminator": [
+        145,
+        143,
+        236,
+        150,
+        229,
+        40,
+        195,
+        88
+      ]
+    },
+    {
+      "name": "PlatformConfig",
+      "discriminator": [
+        160,
+        78,
+        128,
+        0,
+        248,
+        83,
+        230,
+        160
+      ]
+    },
+    {
+      "name": "Property",
+      "discriminator": [
+        195,
+        247,
+        69,
+        181,
+        195,
+        47,
+        152,
+        19
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "Unauthorized",
+      "msg": "Only the platform authority can perform this action."
+    },
+    {
+      "code": 6001,
+      "name": "NameTooLong",
+      "msg": "Property name is too long."
+    },
+    {
+      "code": 6002,
+      "name": "LocationTooLong",
+      "msg": "Property location is too long."
+    },
+    {
+      "code": 6003,
+      "name": "InvalidPrice",
+      "msg": "Price per unit must be greater than zero."
+    },
+    {
+      "code": 6004,
+      "name": "InvalidTotalUnits",
+      "msg": "Total units must be greater than zero."
+    },
+    {
+      "code": 6005,
+      "name": "InvalidUnitsToBuy",
+      "msg": "Units to buy must be greater than zero."
+    },
+    {
+      "code": 6006,
+      "name": "NotEnoughUnitsRemaining",
+      "msg": "Not enough units remaining for this investment."
+    },
+    {
+      "code": 6007,
+      "name": "PropertyNotActive",
+      "msg": "Property is not active for investment."
+    },
+    {
+      "code": 6008,
+      "name": "MathOverflow",
+      "msg": "Arithmetic Overflow occurred."
+    }
+  ],
+  "types": [
+    {
+      "name": "InvestorPosition",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "investor",
+            "type": "pubkey"
+          },
+          {
+            "name": "property",
+            "type": "pubkey"
+          },
+          {
+            "name": "units_owned",
+            "type": "u64"
+          },
+          {
+            "name": "total_invested_lamports",
+            "type": "u64"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PlatformConfig",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "admin",
+            "type": "pubkey"
+          },
+          {
+            "name": "treasury",
+            "type": "pubkey"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Property",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "property_id",
+            "type": "u64"
+          },
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "name": "location",
+            "type": "string"
+          },
+          {
+            "name": "price_per_unit_lamports",
+            "type": "u64"
+          },
+          {
+            "name": "total_units",
+            "type": "u64"
+          },
+          {
+            "name": "units_sold",
+            "type": "u64"
+          },
+          {
+            "name": "is_active",
+            "type": "bool"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    }
+  ]
+}
