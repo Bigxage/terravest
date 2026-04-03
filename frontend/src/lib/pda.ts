@@ -1,8 +1,5 @@
 import { PublicKey } from "@solana/web3.js";
-
-const PROGRAM_ID = new PublicKey(
-  "GtnVbAsPubGcD1mEG6jUfn6AC47TMrSJmLeeJ9SvFkBz"
-);
+import { PROGRAM_ID } from "@/lib/anchor";
 
 export function getPlatformConfigPda() {
   return PublicKey.findProgramAddressSync(
@@ -11,12 +8,12 @@ export function getPlatformConfigPda() {
   )[0];
 }
 
-export function getPropertyPda(propertyId: number) {
-  const buffer = Buffer.alloc(8);
-  buffer.writeBigUInt64LE(BigInt(propertyId));
+export function getPropertyPda(propertyId: number | bigint) {
+  const buf = Buffer.alloc(8);
+  buf.writeBigUInt64LE(BigInt(propertyId));
 
   return PublicKey.findProgramAddressSync(
-    [Buffer.from("property"), buffer],
+    [Buffer.from("property"), buf],
     PROGRAM_ID
   )[0];
 }
@@ -26,11 +23,7 @@ export function getInvestorPositionPda(
   property: PublicKey
 ) {
   return PublicKey.findProgramAddressSync(
-    [
-      Buffer.from("position"),
-      investor.toBuffer(),
-      property.toBuffer(),
-    ],
+    [Buffer.from("position"), investor.toBuffer(), property.toBuffer()],
     PROGRAM_ID
   )[0];
 }
