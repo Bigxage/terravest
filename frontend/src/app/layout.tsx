@@ -1,5 +1,6 @@
 import "./globals.css";
 import SolanaProvider from "@/components/SolanaProvider";
+import "@solana/wallet-adapter-react-ui/styles.css";
 
 export const metadata = {
   title: "TerraVest",
@@ -12,7 +13,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body>
         <SolanaProvider>{children}</SolanaProvider>
       </body>

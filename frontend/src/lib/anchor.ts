@@ -1,14 +1,27 @@
 "use client";
 
-import { AnchorProvider, Idl, Program } from "@coral-xyz/anchor";
-import { Connection } from "@solana/web3.js";
-import idl from "@/idl/terravest.json";
-import { PROGRAM_ID } from "./constants";
+import { Connection, PublicKey } from "@solana/web3.js";
+import { AnchorProvider, Program, Idl } from "@coral-xyz/anchor";
+import { useWallet } from "@solana/wallet-adapter-react";
+import idl from "../idl/terravest.json";
 
-export function getProgram(connection: Connection, wallet: any) {
-  const provider = new AnchorProvider(connection, wallet, {
-    commitment: "confirmed",
+const PROGRAM_ID = new PublicKey(
+  "GtnVbAsPubGcD1mEG6jUfn6AC47TMrSJmLeeJ9SvFkBz"
+);
+
+export function useProgram() {
+  const wallet = useWallet();
+
+  const connection = new Connection("https://api.devnet.solana.com");
+
+  const provider = new AnchorProvider(connection, wallet as any, {
+    preflightCommitment: "processed",
   });
 
-  return new Program(idl as Idl, PROGRAM_ID, provider);
+  // ✅ CORRECT (Anchor v0.30+)
+  return new Program({
+    idl: idl as Idl,
+    programId: PROGRAM_ID,
+    provider,
+  });
 }
