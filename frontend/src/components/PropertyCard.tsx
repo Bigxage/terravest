@@ -11,7 +11,7 @@ interface PropertyCardProps {
   roi: string;
 }
 
-const DEMO_TREASURY = "6JAR2YthhdV5fjCmySgQxU3G5fyuEVTMaPkv5G4wdjXg";
+const DEMO_TREASURY = process.env.NEXT_PUBLIC_DEMO_TREASURY || "";
 
 export default function PropertyCard({
   propertyId,

@@ -3,7 +3,6 @@
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import PropertyCard from "@/components/PropertyCard";
-import AdminPanel from "@/components/AdminPanel";
 
 export default function Home() {
   return (
@@ -11,14 +10,13 @@ export default function Home() {
       <Navbar />
       <Hero />
 
-      <section className="px-10 pb-12">
-        <AdminPanel />
-      </section>
-
       <section className="px-10 pb-20">
-        <h2 className="mb-8 text-3xl font-semibold text-white">
-          Featured Property
+        <h2 className="mb-2 text-3xl font-semibold text-white">
+          Available Properties
         </h2>
+        <p className="mb-8 text-gray-300">
+          Choose a property and select how many units you want to buy. Pricing is set on-chain by the platform.
+        </p>
 
         <div className="max-w-md">
           <PropertyCard
