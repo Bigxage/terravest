@@ -11,6 +11,8 @@ interface PropertyCardProps {
   roi: string;
 }
 
+const DEMO_TREASURY = "6JAR2YthhdV5fjCmySgQxU3G5fyuEVTMaPkv5G4wdjXg";
+
 export default function PropertyCard({
   propertyId,
   title,
@@ -20,33 +22,53 @@ export default function PropertyCard({
 }: PropertyCardProps) {
   const { invest } = useInvest();
   const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState("");
 
   const onInvest = async () => {
     try {
       setLoading(true);
-      await invest(propertyId, 1);
+      setStatus("Submitting investment...");
+
+      const sig = await invest(propertyId, 1, DEMO_TREASURY);
+
+      setStatus(
+        `Investment successful: ${sig}\nExplorer: https://explorer.solana.com/tx/${sig}?cluster=devnet`
+      );
+    } catch (error: any) {
+      console.error("Invest failed:", error);
+      setStatus(
+        error?.message ||
+          error?.error?.message ||
+          error?.toString?.() ||
+          "Investment failed"
+      );
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="overflow-hidden rounded-xl border border-gray-800 bg-secondary p-5 shadow-lg transition duration-300 hover:scale-[1.03]">
+    <div className="overflow-hidden rounded-2xl border border-gray-700 bg-[#1A2233] p-5 text-white shadow-lg">
       <div className="mb-4 h-52 rounded-lg bg-gradient-to-br from-gray-700 to-gray-900" />
 
-      <h3 className="text-xl font-semibold">{title}</h3>
-      <p className="text-gray-400">{location}</p>
-
-      <p className="mt-2 text-lg font-bold">{price} SOL per unit</p>
-      <p className="text-sm text-green-400">ROI: {roi}</p>
+      <h3 className="text-xl font-semibold text-white">{title}</h3>
+      <p className="text-gray-300">{location}</p>
+      <p className="mt-2 text-lg font-bold text-white">{price} SOL per unit</p>
+      <p className="text-sm text-emerald-400">ROI: {roi}</p>
 
       <button
         onClick={onInvest}
         disabled={loading}
-        className="mt-4 rounded bg-accent px-4 py-2 font-semibold text-black disabled:opacity-50"
+        className="mt-4 inline-block rounded-lg bg-emerald-400 px-4 py-3 font-semibold text-black disabled:opacity-50"
       >
         {loading ? "Processing..." : "Invest Now"}
       </button>
+
+      {status && (
+        <div className="mt-4 whitespace-pre-wrap break-all rounded-lg border border-gray-700 bg-black/20 p-3 text-sm text-white">
+          {status}
+        </div>
+      )}
     </div>
   );
 }

@@ -15,11 +15,11 @@ export function useAdmin() {
       throw new Error("Connect wallet first");
     }
 
-    if (!treasuryAddress) {
+    if (!treasuryAddress?.trim()) {
       throw new Error("Treasury address is required");
     }
 
-    const treasury = new PublicKey(treasuryAddress);
+    const treasury = new PublicKey(treasuryAddress.trim());
     const platformConfig = getPlatformConfigPda();
 
     const tx = await program.methods
@@ -38,17 +38,6 @@ export function useAdmin() {
     tx.recentBlockhash = latest.blockhash;
 
     console.log("initialize tx", tx);
-
-    const sim = await connection.simulateTransaction(tx, {
-      sigVerify: false,
-      replaceRecentBlockhash: true,
-    });
-
-    console.log("initialize simulation", sim);
-
-    if (sim.value.err) {
-      throw new Error(`Simulation failed: ${JSON.stringify(sim.value.err)}`);
-    }
 
     const signedTx = await wallet.signTransaction(tx);
     const raw = signedTx.serialize();
@@ -106,17 +95,6 @@ export function useAdmin() {
     tx.recentBlockhash = latest.blockhash;
 
     console.log("create property tx", tx);
-
-    const sim = await connection.simulateTransaction(tx, {
-      sigVerify: false,
-      replaceRecentBlockhash: true,
-    });
-
-    console.log("create property simulation", sim);
-
-    if (sim.value.err) {
-      throw new Error(`Simulation failed: ${JSON.stringify(sim.value.err)}`);
-    }
 
     const signedTx = await wallet.signTransaction(tx);
     const raw = signedTx.serialize();

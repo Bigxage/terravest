@@ -1,6 +1,13 @@
 import { PublicKey } from "@solana/web3.js";
 import { PROGRAM_ID } from "@/lib/anchor";
 
+function u64ToLeBuffer(value: number | bigint) {
+  const buffer = new ArrayBuffer(8);
+  const view = new DataView(buffer);
+  view.setBigUint64(0, BigInt(value), true);
+  return Buffer.from(buffer);
+}
+
 export function getPlatformConfigPda() {
   return PublicKey.findProgramAddressSync(
     [Buffer.from("platform_config")],
@@ -9,8 +16,7 @@ export function getPlatformConfigPda() {
 }
 
 export function getPropertyPda(propertyId: number | bigint) {
-  const buf = Buffer.alloc(8);
-  buf.writeBigUInt64LE(BigInt(propertyId));
+  const buf = u64ToLeBuffer(propertyId);
 
   return PublicKey.findProgramAddressSync(
     [Buffer.from("property"), buf],
