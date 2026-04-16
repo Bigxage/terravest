@@ -10,38 +10,54 @@ import {
   getInvestorPositionPda,
 } from "@/lib/pda";
 
+function getTreasuryPublicKey(): PublicKey {
+  const treasuryAddress = process.env.NEXT_PUBLIC_DEMO_TREASURY?.trim();
+
+  if (!treasuryAddress) {
+    throw new Error(
+      "Treasury address is missing. Set NEXT_PUBLIC_DEMO_TREASURY in your environment."
+    );
+  }
+
+  try {
+    return new PublicKey(treasuryAddress);
+  } catch {
+    throw new Error("Treasury address is invalid");
+  }
+}
+
 export function useInvest() {
   const wallet = useWallet();
   const { program, connection } = useProgram();
 
-  const invest = async (
-    propertyId: number,
-    units: number,
-    treasuryAddress: string
-  ) => {
-    if (!wallet.publicKey || !wallet.signTransaction || !program || !connection) {
+  const invest = async (propertyId: number, units: number) => {
+    if (!wallet.publicKey || !wallet.signTransaction) {
       throw new Error("Connect wallet first");
     }
 
-    if (!treasuryAddress?.trim()) {
-      throw new Error("Treasury address is required");
+    if (!program || !connection) {
+      throw new Error("Program connection is not ready");
     }
 
-    let treasury: PublicKey;
-    try {
-      treasury = new PublicKey(treasuryAddress.trim());
-    } catch {
-      throw new Error("Treasury address is invalid");
+    if (!Number.isInteger(propertyId) || propertyId < 0) {
+      throw new Error("Invalid property ID");
     }
 
+    if (!Number.isInteger(units) || units <= 0) {
+      throw new Error("Units must be greater than zero");
+    }
+
+    const treasury = getTreasuryPublicKey();
+
+    const investor = wallet.publicKey;
     const platformConfig = getPlatformConfigPda();
     const property = getPropertyPda(propertyId);
-    const investorPosition = getInvestorPositionPda(wallet.publicKey, property);
+    const investorPosition = getInvestorPositionPda(investor, property);
 
     const tx = await program.methods
       .invest(new BN(units))
       .accounts({
-        investor: wallet.publicKey,
+        investor,
         platformConfig,
         property,
         treasury,
@@ -50,17 +66,17 @@ export function useInvest() {
       })
       .transaction();
 
-    tx.feePayer = wallet.publicKey;
+    tx.feePayer = investor;
 
-    const latest = await connection.getLatestBlockhash("confirmed");
-    tx.recentBlockhash = latest.blockhash;
+    const latestBlockhash = await connection.getLatestBlockhash("confirmed");
+    tx.recentBlockhash = latestBlockhash.blockhash;
 
     console.log("invest tx", tx);
 
     const signedTx = await wallet.signTransaction(tx);
-    const raw = signedTx.serialize();
+    const rawTx = signedTx.serialize();
 
-    const signature = await connection.sendRawTransaction(raw, {
+    const signature = await connection.sendRawTransaction(rawTx, {
       skipPreflight: false,
       preflightCommitment: "confirmed",
     });
@@ -68,8 +84,8 @@ export function useInvest() {
     await connection.confirmTransaction(
       {
         signature,
-        blockhash: latest.blockhash,
-        lastValidBlockHeight: latest.lastValidBlockHeight,
+        blockhash: latestBlockhash.blockhash,
+        lastValidBlockHeight: latestBlockhash.lastValidBlockHeight,
       },
       "confirmed"
     );

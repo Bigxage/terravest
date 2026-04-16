@@ -1,11 +1,5 @@
 import "./globals.css";
-import SolanaProvider from "@/components/SolanaProvider";
-import "@solana/wallet-adapter-react-ui/styles.css";
-
-export const metadata = {
-  title: "TerraVest",
-  description: "TerraVest frontend",
-};
+import Providers from "@/components/providers";
 
 export default function RootLayout({
   children,
@@ -13,9 +7,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en">
       <body>
-        <SolanaProvider>{children}</SolanaProvider>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

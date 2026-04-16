@@ -9,29 +9,39 @@ export const PROGRAM_ID = new PublicKey(
   "GtnVbAsPubGcD1mEG6jUfn6AC47TMrSJmLeeJ9SvFkBz"
 );
 
+const RPC_URL =
+  process.env.NEXT_PUBLIC_RPC_URL?.trim() || "https://api.devnet.solana.com";
+
 type AnchorWallet = {
   publicKey: PublicKey;
   signTransaction: (tx: Transaction) => Promise<Transaction>;
   signAllTransactions?: (txs: Transaction[]) => Promise<Transaction[]>;
 };
 
+const READONLY_PUBLIC_KEY = new PublicKey(
+  "11111111111111111111111111111111"
+);
+
 export function useProgram() {
   const wallet = useWallet();
 
-  if (!wallet.publicKey || !wallet.signTransaction) {
-    return { program: null, connection: null };
-  }
+  const connection = new Connection(RPC_URL, "confirmed");
 
-  const connection = new Connection(
-    "https://api.devnet.solana.com",
-    "confirmed"
-  );
-
-  const anchorWallet: AnchorWallet = {
-    publicKey: wallet.publicKey,
-    signTransaction: wallet.signTransaction,
-    signAllTransactions: wallet.signAllTransactions,
-  };
+  const anchorWallet: AnchorWallet = wallet.publicKey && wallet.signTransaction
+    ? {
+        publicKey: wallet.publicKey,
+        signTransaction: wallet.signTransaction,
+        signAllTransactions: wallet.signAllTransactions,
+      }
+    : {
+        publicKey: READONLY_PUBLIC_KEY,
+        signTransaction: async () => {
+          throw new Error("Wallet not connected");
+        },
+        signAllTransactions: async () => {
+          throw new Error("Wallet not connected");
+        },
+      };
 
   const provider = new AnchorProvider(connection, anchorWallet as any, {
     commitment: "confirmed",

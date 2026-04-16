@@ -1,14 +1,21 @@
 "use client";
 
 import { ReactNode, useMemo } from "react";
-import { ConnectionProvider, WalletProvider } from "@solana/wallet-adapter-react";
-import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
 import { clusterApiUrl } from "@solana/web3.js";
+import {
+  ConnectionProvider,
+  WalletProvider,
+} from "@solana/wallet-adapter-react";
+import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
 
 import "@solana/wallet-adapter-react-ui/styles.css";
 
-export default function SolanaProvider({ children }: { children: ReactNode }) {
-  const endpoint = useMemo(() => clusterApiUrl("devnet"), []);
+export default function Providers({ children }: { children: ReactNode }) {
+  const endpoint = useMemo(() => {
+    return (
+      process.env.NEXT_PUBLIC_RPC_URL?.trim() || clusterApiUrl("devnet")
+    );
+  }, []);
 
   return (
     <ConnectionProvider endpoint={endpoint}>
