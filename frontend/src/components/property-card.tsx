@@ -27,12 +27,8 @@ type DemoInvestment = {
 
 const MIN_UNITS = 100;
 
-function formatUsd(value: number) {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: value < 10 ? 2 : 0,
-  }).format(value);
+function formatSol(value: number) {
+  return `${value.toFixed(4)} SOL`;
 }
 
 function getCategoryLabel(category: PropertyCategory) {
@@ -110,7 +106,11 @@ export default function PropertyCard({
 
     try {
       setLoading(true);
-      setStatus(`Submitting purchase for ${MIN_UNITS} unit shares...`);
+      setStatus(
+        `Submitting purchase for ${MIN_UNITS} unit shares (${formatSol(
+          minimumInvestment
+        )})...`
+      );
 
       const sig = await invest(propertyId, MIN_UNITS);
 
@@ -138,11 +138,7 @@ export default function PropertyCard({
   return (
     <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#121926] text-white shadow-xl transition hover:-translate-y-1 hover:border-emerald-400/30">
       <div className="relative">
-        <img
-          src={image}
-          alt={title}
-          className="h-56 w-full object-cover"
-        />
+        <img src={image} alt={title} className="h-56 w-full object-cover" />
 
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
@@ -165,7 +161,7 @@ export default function PropertyCard({
               Price Per Unit
             </p>
             <p className="mt-1 text-lg font-semibold text-white">
-              {formatUsd(price)}
+              {formatSol(price)}
             </p>
           </div>
 
@@ -190,9 +186,7 @@ export default function PropertyCard({
             <p className="mt-1 text-lg font-semibold text-white">
               {MIN_UNITS} Units
             </p>
-            <p className="text-sm text-white/60">
-              {formatUsd(minimumInvestment)}
-            </p>
+            <p className="text-sm text-white/60">{formatSol(minimumInvestment)}</p>
           </div>
         </div>
 
@@ -215,7 +209,7 @@ export default function PropertyCard({
             <span className="text-white/60">
               Available: {availableUnits.toLocaleString()}
             </span>
-            <span className="text-emerald-300 font-medium">
+            <span className="font-medium text-emerald-300">
               {soldPercentage.toFixed(1)}% sold
             </span>
           </div>

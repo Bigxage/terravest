@@ -9,41 +9,41 @@ const presetProperties = [
     id: 11,
     name: "Imperial Villa – Karsana",
     location: "Karsana, Abuja",
-    pricePerUnitUsd: 2,
+    pricePerUnitSol: 0.0002,
     totalUnits: 10000,
   },
   {
     id: 12,
     name: "Harmonies Homes – Kuje",
     location: "Kuje, Abuja",
-    pricePerUnitUsd: 1,
+    pricePerUnitSol: 0.0001,
     totalUnits: 8000,
   },
   {
     id: 13,
     name: "Nova Garden – Kurudu",
     location: "Kurudu, Abuja",
-    pricePerUnitUsd: 1,
+    pricePerUnitSol: 0.0001,
     totalUnits: 12000,
   },
   {
     id: 14,
     name: "Abundance City – Apo Tafyi",
     location: "Apo Tafyi, Abuja",
-    pricePerUnitUsd: 2,
+    pricePerUnitSol: 0.0002,
     totalUnits: 9000,
   },
   {
     id: 15,
     name: "Skyline Exclusive – Gousa",
     location: "Gousa, Abuja",
-    pricePerUnitUsd: 2,
+    pricePerUnitSol: 0.0002,
     totalUnits: 7000,
   },
 ];
 
-function usdToLamports(usd: number) {
-  return Math.round(usd * 0.01 * LAMPORTS_PER_SOL);
+function solToLamports(sol: number) {
+  return Math.round(sol * LAMPORTS_PER_SOL);
 }
 
 export default function AdminPanel() {
@@ -52,7 +52,7 @@ export default function AdminPanel() {
   const [selectedId, setSelectedId] = useState<number>(11);
   const [name, setName] = useState("Imperial Villa – Karsana");
   const [location, setLocation] = useState("Karsana, Abuja");
-  const [pricePerUnitUsd, setPricePerUnitUsd] = useState<number>(2);
+  const [pricePerUnitSol, setPricePerUnitSol] = useState<number>(0.0002);
   const [totalUnits, setTotalUnits] = useState<number>(10000);
   const [loadingProperty, setLoadingProperty] = useState(false);
   const [status, setStatus] = useState("");
@@ -70,7 +70,7 @@ export default function AdminPanel() {
 
     setName(preset.name);
     setLocation(preset.location);
-    setPricePerUnitUsd(preset.pricePerUnitUsd);
+    setPricePerUnitSol(preset.pricePerUnitSol);
     setTotalUnits(preset.totalUnits);
   };
 
@@ -79,7 +79,7 @@ export default function AdminPanel() {
       setLoadingProperty(true);
       setStatus("Creating property onchain...");
 
-      const pricePerUnitLamports = usdToLamports(pricePerUnitUsd);
+      const pricePerUnitLamports = solToLamports(pricePerUnitSol);
 
       const signature = await createProperty({
         propertyId: selectedId,
@@ -173,13 +173,14 @@ export default function AdminPanel() {
 
               <div>
                 <label className="mb-2 block text-sm font-medium text-white/80">
-                  Price Per Unit (USD display value)
+                  Price Per Unit (SOL)
                 </label>
                 <input
                   type="number"
-                  min={1}
-                  value={pricePerUnitUsd}
-                  onChange={(e) => setPricePerUnitUsd(Number(e.target.value))}
+                  min={0}
+                  step="0.0001"
+                  value={pricePerUnitSol}
+                  onChange={(e) => setPricePerUnitSol(Number(e.target.value))}
                   className="w-full rounded-lg border border-white/10 bg-black/30 px-4 py-3 text-white outline-none"
                 />
               </div>
@@ -225,7 +226,7 @@ export default function AdminPanel() {
                 </p>
                 <p>
                   <span className="font-semibold text-white">Price Per Unit:</span>{" "}
-                  ${pricePerUnitUsd}
+                  {pricePerUnitSol} SOL
                 </p>
                 <p>
                   <span className="font-semibold text-white">Total Units:</span>{" "}
@@ -235,7 +236,7 @@ export default function AdminPanel() {
                   <span className="font-semibold text-white">
                     Onchain Price (lamports):
                   </span>{" "}
-                  {usdToLamports(pricePerUnitUsd).toLocaleString()}
+                  {solToLamports(pricePerUnitSol).toLocaleString()}
                 </p>
               </div>
             ) : (
