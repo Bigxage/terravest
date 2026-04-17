@@ -4,46 +4,52 @@ import { useMemo, useState } from "react";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { useCreateProperty } from "@/hooks/useCreateProperty";
 
+const DEMO_SOL_USD_RATE = 150;
+
 const presetProperties = [
   {
     id: 11,
     name: "Imperial Villa – Karsana",
     location: "Karsana, Abuja",
-    pricePerUnitSol: 0.0002,
+    pricePerUnitUsd: 2,
     totalUnits: 10000,
   },
   {
     id: 12,
     name: "Harmonies Homes – Kuje",
     location: "Kuje, Abuja",
-    pricePerUnitSol: 0.0001,
+    pricePerUnitUsd: 1,
     totalUnits: 8000,
   },
   {
     id: 13,
     name: "Nova Garden – Kurudu",
     location: "Kurudu, Abuja",
-    pricePerUnitSol: 0.0001,
+    pricePerUnitUsd: 1,
     totalUnits: 12000,
   },
   {
     id: 14,
     name: "Abundance City – Apo Tafyi",
     location: "Apo Tafyi, Abuja",
-    pricePerUnitSol: 0.0002,
+    pricePerUnitUsd: 2,
     totalUnits: 9000,
   },
   {
     id: 15,
     name: "Skyline Exclusive – Gousa",
     location: "Gousa, Abuja",
-    pricePerUnitSol: 0.0002,
+    pricePerUnitUsd: 2,
     totalUnits: 7000,
   },
 ];
 
-function solToLamports(sol: number) {
-  return Math.round(sol * LAMPORTS_PER_SOL);
+function usdToSol(usd: number) {
+  return usd / DEMO_SOL_USD_RATE;
+}
+
+function usdToLamports(usd: number) {
+  return Math.round(usdToSol(usd) * LAMPORTS_PER_SOL);
 }
 
 export default function AdminPanel() {
@@ -52,7 +58,7 @@ export default function AdminPanel() {
   const [selectedId, setSelectedId] = useState<number>(11);
   const [name, setName] = useState("Imperial Villa – Karsana");
   const [location, setLocation] = useState("Karsana, Abuja");
-  const [pricePerUnitSol, setPricePerUnitSol] = useState<number>(0.0002);
+  const [pricePerUnitUsd, setPricePerUnitUsd] = useState<number>(2);
   const [totalUnits, setTotalUnits] = useState<number>(10000);
   const [loadingProperty, setLoadingProperty] = useState(false);
   const [status, setStatus] = useState("");
@@ -70,7 +76,7 @@ export default function AdminPanel() {
 
     setName(preset.name);
     setLocation(preset.location);
-    setPricePerUnitSol(preset.pricePerUnitSol);
+    setPricePerUnitUsd(preset.pricePerUnitUsd);
     setTotalUnits(preset.totalUnits);
   };
 
@@ -79,7 +85,7 @@ export default function AdminPanel() {
       setLoadingProperty(true);
       setStatus("Creating property onchain...");
 
-      const pricePerUnitLamports = solToLamports(pricePerUnitSol);
+      const pricePerUnitLamports = usdToLamports(pricePerUnitUsd);
 
       const signature = await createProperty({
         propertyId: selectedId,
@@ -113,8 +119,13 @@ export default function AdminPanel() {
       <div className="rounded-2xl border border-white/10 bg-[#121926] p-5">
         <h2 className="text-xl font-semibold text-white">Create Property</h2>
         <p className="mt-2 text-white/70">
-          Create a new onchain property record so it appears on the public TerraVest marketplace.
+          Create a new onchain property record using USD as the pricing anchor
+          and devnet SOL as the payment rail.
         </p>
+
+        <div className="mt-3 rounded-xl border border-blue-400/20 bg-blue-400/10 p-4 text-sm text-blue-100">
+          Demo conversion rate: <span className="font-semibold">1 SOL = ${DEMO_SOL_USD_RATE}</span>
+        </div>
 
         <div className="mt-6 grid gap-6 md:grid-cols-2">
           <div>
@@ -173,14 +184,14 @@ export default function AdminPanel() {
 
               <div>
                 <label className="mb-2 block text-sm font-medium text-white/80">
-                  Price Per Unit (SOL)
+                  Price Per Unit (USD)
                 </label>
                 <input
                   type="number"
                   min={0}
-                  step="0.0001"
-                  value={pricePerUnitSol}
-                  onChange={(e) => setPricePerUnitSol(Number(e.target.value))}
+                  step="0.01"
+                  value={pricePerUnitUsd}
+                  onChange={(e) => setPricePerUnitUsd(Number(e.target.value))}
                   className="w-full rounded-lg border border-white/10 bg-black/30 px-4 py-3 text-white outline-none"
                 />
               </div>
@@ -226,7 +237,11 @@ export default function AdminPanel() {
                 </p>
                 <p>
                   <span className="font-semibold text-white">Price Per Unit:</span>{" "}
-                  {pricePerUnitSol} SOL
+                  ${pricePerUnitUsd}
+                </p>
+                <p>
+                  <span className="font-semibold text-white">SOL Equivalent:</span>{" "}
+                  {usdToSol(pricePerUnitUsd).toFixed(6)} SOL
                 </p>
                 <p>
                   <span className="font-semibold text-white">Total Units:</span>{" "}
@@ -236,7 +251,7 @@ export default function AdminPanel() {
                   <span className="font-semibold text-white">
                     Onchain Price (lamports):
                   </span>{" "}
-                  {solToLamports(pricePerUnitSol).toLocaleString()}
+                  {usdToLamports(pricePerUnitUsd).toLocaleString()}
                 </p>
               </div>
             ) : (
@@ -244,7 +259,8 @@ export default function AdminPanel() {
             )}
 
             <div className="mt-6 rounded-xl border border-amber-400/20 bg-amber-400/10 p-4 text-sm text-amber-100">
-              If you see an “already exists onchain” error, choose a new property ID.
+              Property values stay anchored in USD. The app converts them to SOL
+              for devnet payment at the current demo rate.
             </div>
           </div>
         </div>

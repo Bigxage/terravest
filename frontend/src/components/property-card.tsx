@@ -10,7 +10,7 @@ interface PropertyCardProps {
   propertyId: number;
   title: string;
   location: string;
-  price: number;
+  price: number; // SOL value currently coming from public listing hook
   roi: string;
   image: string;
   totalUnits: number;
@@ -21,14 +21,27 @@ interface PropertyCardProps {
 type DemoInvestment = {
   wallet: string;
   propertyId: number;
-  amount: number;
+  amountSol: number;
   signature: string;
 };
 
 const MIN_UNITS = 100;
+const DEMO_SOL_USD_RATE = 150;
 
 function formatSol(value: number) {
   return `${value.toFixed(4)} SOL`;
+}
+
+function formatUsd(value: number) {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: value < 10 ? 2 : 0,
+  }).format(value);
+}
+
+function solToUsd(sol: number) {
+  return sol * DEMO_SOL_USD_RATE;
 }
 
 function getCategoryLabel(category: PropertyCategory) {
@@ -63,7 +76,11 @@ export default function PropertyCard({
 
   const soldUnits = totalUnits - availableUnits;
   const soldPercentage = totalUnits > 0 ? (soldUnits / totalUnits) * 100 : 0;
-  const minimumInvestment = price * MIN_UNITS;
+
+  const pricePerUnitSol = price;
+  const pricePerUnitUsd = solToUsd(pricePerUnitSol);
+  const minimumInvestmentSol = pricePerUnitSol * MIN_UNITS;
+  const minimumInvestmentUsd = pricePerUnitUsd * MIN_UNITS;
 
   const categoryLabel = useMemo(() => getCategoryLabel(category), [category]);
 
@@ -84,7 +101,7 @@ export default function PropertyCard({
             {
               wallet,
               propertyId,
-              amount: minimumInvestment,
+              amountSol: minimumInvestmentSol,
               signature,
             },
           ];
@@ -108,7 +125,7 @@ export default function PropertyCard({
       setLoading(true);
       setStatus(
         `Submitting purchase for ${MIN_UNITS} unit shares (${formatSol(
-          minimumInvestment
+          minimumInvestmentSol
         )})...`
       );
 
@@ -155,14 +172,20 @@ export default function PropertyCard({
       </div>
 
       <div className="p-5">
+        <div className="mb-4 rounded-xl border border-blue-400/20 bg-blue-400/10 p-3 text-xs text-blue-100">
+          Pricing is anchored in USD and settled in devnet SOL using the current
+          demo rate: <span className="font-semibold">1 SOL = ${DEMO_SOL_USD_RATE}</span>
+        </div>
+
         <div className="grid grid-cols-2 gap-3">
           <div className="rounded-xl border border-white/10 bg-white/5 p-3">
             <p className="text-xs uppercase tracking-wide text-white/60">
               Price Per Unit
             </p>
             <p className="mt-1 text-lg font-semibold text-white">
-              {formatSol(price)}
+              {formatUsd(pricePerUnitUsd)}
             </p>
+            <p className="text-sm text-white/60">{formatSol(pricePerUnitSol)}</p>
           </div>
 
           <div className="rounded-xl border border-white/10 bg-white/5 p-3">
@@ -186,7 +209,12 @@ export default function PropertyCard({
             <p className="mt-1 text-lg font-semibold text-white">
               {MIN_UNITS} Units
             </p>
-            <p className="text-sm text-white/60">{formatSol(minimumInvestment)}</p>
+            <p className="text-sm text-white/60">
+              {formatUsd(minimumInvestmentUsd)}
+            </p>
+            <p className="text-sm text-emerald-300">
+              {formatSol(minimumInvestmentSol)}
+            </p>
           </div>
         </div>
 
