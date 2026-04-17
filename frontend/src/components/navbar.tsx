@@ -45,6 +45,11 @@ export default function Navbar() {
           <WalletButton />
         </nav>
       </div>
+
+      <div className="border-t border-white/10 bg-blue-400/10 px-6 py-3 text-center text-sm text-blue-100">
+        TerraVest demo runs on <span className="font-semibold">Solana Devnet</span>.
+        Connect a devnet wallet and use devnet SOL for testing only.
+      </div>
     </header>
   );
 }
